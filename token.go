@@ -1,13 +1,16 @@
 package csslexer
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // TokenType represents the type of a token in the CSS lexer.
 type TokenType int
 
 const (
-	// ErrorToken is used for tokens that cannot be recognized or parsed.
-	ErrorToken = iota
+	// DefaultToken is the default token type, used when no specific type is matched.
+	// It is not being used in the lexer.
+	DefaultToken = iota
 
 	// Standard CSS token types
 	IdentToken
@@ -49,8 +52,8 @@ const (
 
 func (tt TokenType) String() string {
 	switch tt {
-	case ErrorToken:
-		return "Error"
+	case DefaultToken:
+		return "Default"
 
 	case IdentToken:
 		return "Ident"

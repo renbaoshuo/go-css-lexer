@@ -77,3 +77,49 @@ func (z *Input) PeekErr(pos int) error {
 func (z *Input) Err() error {
 	return z.PeekErr(0)
 }
+
+// Peek returns the next rune in the input stream without advancing the position.
+func (z *Input) Peek(n int) rune {
+	if z.pos+n >= len(z.runes) {
+		return EOF
+	}
+	return z.runes[z.pos+n]
+}
+
+// Move advances the position by the specified number of runes.
+func (z *Input) Move(n int) {
+	if z.pos+n >= len(z.runes) {
+		z.pos = len(z.runes)
+		z.err = io.EOF
+		return
+	}
+	z.pos += n
+}
+
+// Ignore ignores the current token by resetting the start position to the current position.
+func (z *Input) Ignore() {
+	z.start = z.pos
+}
+
+// Current returns the current token as a slice of runes.
+func (z *Input) Current() []rune {
+	if z.start >= z.pos {
+		return nullRune
+	}
+	return z.runes[z.start:z.pos:z.pos]
+}
+
+// Shift returns the current token and resets the start position to the current position.
+func (z *Input) Shift() []rune {
+	// Shift returns the current token and resets the start position.
+	current := z.Current()
+	z.start = z.pos
+	return current
+}
+
+// MoveWhilePredicate advances the position while the predicate function returns true for the current rune.
+func (z *Input) MoveWhilePredicate(pred func(rune) bool) {
+	for pred(z.Peek(0)) {
+		z.Move(1)
+	}
+}
