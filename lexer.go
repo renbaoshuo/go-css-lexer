@@ -107,6 +107,7 @@ func (l *Lexer) Next() (TokenType, []rune) {
 			l.consumeUntilCommentEnd()
 			return CommentToken, l.r.Shift()
 		}
+		l.r.Move(1)
 		return DelimiterToken, l.r.Shift()
 
 	case '\\':
