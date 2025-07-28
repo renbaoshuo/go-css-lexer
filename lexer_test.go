@@ -72,6 +72,9 @@ func TestLexer(t *testing.T) {
 						expectedToken := tokens[i]
 						tokenType, tokenRaw := lexer.Next()
 
+						// t.Logf("Expect token %d: Type=%s, Raw=%s", i, expectedToken.Type, expectedToken.Raw)
+						// t.Logf("Lexer returned: Type=%s, Raw=%s", tokenType, string(tokenRaw))
+
 						if tokenType != convertTestTokenName(expectedToken.Type) {
 							t.Errorf("expected token type '%s' (raw: '%s'), got '%s' (raw: '%s') at index %d in test %s/%s",
 								expectedToken.Type, expectedToken.Raw, tokenType, string(tokenRaw), i, testCategory, testId)
