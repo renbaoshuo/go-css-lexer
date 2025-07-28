@@ -56,7 +56,7 @@ func (l *Lexer) consumeIdentLikeToken() (TokenType, []rune) {
 			l.consumeWhitespace()
 
 			next := l.r.Peek(0)
-			if next != '"' && next != '\\' {
+			if next != '"' && next != '\'' {
 				return l.consumeURLToken()
 			}
 		}
