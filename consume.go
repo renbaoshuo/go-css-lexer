@@ -22,20 +22,19 @@ func (l *Lexer) consumeUntilCommentEnd() {
 func (l *Lexer) consumeEscape() {
 	next := l.r.Peek(0)
 
-	if next == '\\' {
-		l.r.Move(1)
-		next = l.r.Peek(0)
-	}
-
 	if isASCIIHexDigit(next) {
+		l.r.Move(1)
+
 		for i := 1; i < 6; i++ {
-			c := l.r.Peek(i)
+			c := l.r.Peek(0)
 			if isASCIIHexDigit(c) {
 				l.r.Move(1)
 			} else {
 				break
 			}
 		}
+	} else if next != EOF {
+		l.r.Move(1) // consume the escape character
 	}
 }
 
@@ -47,6 +46,7 @@ func (l *Lexer) consumeName() {
 		if isNameCodePoint(next) {
 			l.r.Move(1)
 		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+			l.r.Move(1) // consume the backslash
 			l.consumeEscape()
 		} else {
 			break

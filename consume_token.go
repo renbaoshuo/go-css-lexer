@@ -100,6 +100,7 @@ func (l *Lexer) consumeStringToken() (TokenType, []rune) {
 				l.r.Move(1)
 				l.consumeSingleWhitespace()
 			} else if twoCharsAreValidEscape(next, next_next) {
+				l.r.Move(1) // consume the backslash
 				l.consumeEscape()
 			} else {
 				l.r.Move(1)
@@ -146,7 +147,8 @@ func (l *Lexer) consumeURLToken() (TokenType, []rune) {
 		}
 
 		if next == '\\' {
-			if twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
+			if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+				l.r.Move(1) // consume the backslash
 				l.consumeEscape()
 				continue
 			} else {
