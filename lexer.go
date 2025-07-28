@@ -96,6 +96,7 @@ func (l *Lexer) Next() (TokenType, []rune) {
 			l.r.Move(4) // consume "<!--"
 			return CDOToken, l.r.Shift()
 		}
+		l.r.Move(1)
 		return DelimiterToken, l.r.Shift()
 
 	case ',':
