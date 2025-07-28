@@ -33,6 +33,9 @@ func (l *Lexer) consumeEscape() {
 				break
 			}
 		}
+
+		// If the next input code point is whitespace, consume it as well.
+		l.consumeSingleWhitespace()
 	} else if next != EOF {
 		l.r.Move(1) // consume the escape character
 	}

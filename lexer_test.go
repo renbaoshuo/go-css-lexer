@@ -73,18 +73,18 @@ func TestLexer(t *testing.T) {
 						tokenType, tokenRaw := lexer.Next()
 
 						if tokenType != convertTestTokenName(expectedToken.Type) {
-							t.Errorf("expected token type %s (raw: %s), got %s (raw: %s) at index %d in test %s/%s",
+							t.Errorf("expected token type '%s' (raw: '%s'), got '%s' (raw: '%s') at index %d in test %s/%s",
 								expectedToken.Type, expectedToken.Raw, tokenType, string(tokenRaw), i, testCategory, testId)
 						}
 
 						if string(tokenRaw) != expectedToken.Raw {
-							t.Errorf("expected token raw %s, got %s at index %d in test %s/%s",
-								expectedToken.Raw, string(tokenRaw), i, testCategory, testId)
+							t.Errorf("expected '%s' token raw '%s', got '%s' at index %d in test %s/%s",
+								expectedToken.Type, expectedToken.Raw, string(tokenRaw), i, testCategory, testId)
 						}
 					}
 
 					if tokenType, _ := lexer.Next(); tokenType != EOFToken {
-						t.Errorf("expected EOF token, got %s at the end of test %s/%s", tokenType, testCategory, testId)
+						t.Errorf("expected EOF token, got '%s' at the end of test %s/%s", tokenType, testCategory, testId)
 					}
 				})
 			}
