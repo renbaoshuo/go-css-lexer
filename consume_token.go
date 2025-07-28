@@ -92,6 +92,7 @@ func (l *Lexer) consumeStringToken() (TokenType, []rune) {
 			next_next := l.r.Peek(1)
 
 			if next_next == EOF {
+				l.r.Move(1) // consume the backslash
 				continue
 			}
 
