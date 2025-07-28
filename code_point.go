@@ -29,9 +29,9 @@ func (l *Lexer) nextCharsAreNumber() bool {
 		return true
 	}
 
-	if first == '+' || first == '-' {
-		second := l.r.Peek(1)
+	second := l.r.Peek(1)
 
+	if first == '+' || first == '-' {
 		if isASCIIDigit(second) {
 			return true
 		}
@@ -43,6 +43,10 @@ func (l *Lexer) nextCharsAreNumber() bool {
 				return true
 			}
 		}
+	}
+
+	if first == '.' {
+		return isASCIIDigit(second)
 	}
 
 	return false
