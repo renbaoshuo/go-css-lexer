@@ -62,14 +62,14 @@ func (l *Lexer) Next() (TokenType, []rune) {
 		l.r.Move(1)
 		return RightBraceToken, l.r.Shift()
 
-	case '.':
+	case '+', '.':
 		if l.nextCharsAreNumber() {
 			return l.consumeNumericToken()
 		}
 		l.r.Move(1)
 		return DelimiterToken, l.r.Shift()
 
-	case '+', '-':
+	case '-':
 		if l.nextCharsAreNumber() {
 			return l.consumeNumericToken()
 		}
