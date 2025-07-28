@@ -1,0 +1,2 @@
+- Escaped code points in hex notation consume the next whitespace
+- CRLF is considered as a single whitespace character as a result of input stream preprocessing

@@ -1,0 +1,1 @@
+EOF with escaped quote
