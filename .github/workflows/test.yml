@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.19'
+          check-latest: true
+
+      - name: Run tests
+        continue-on-error: true
+        run: go test -v ./...
+
+      - name: Read test results
+        id: read-results
+        run: |
+          if [ -f "test_result.md" ]; then
+            cat test_result.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No test results found" >> $GITHUB_STEP_SUMMARY
+          fi
