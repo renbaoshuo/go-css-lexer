@@ -176,6 +176,12 @@ func (l *Lexer) consumeBadUrlRemnants() {
 			return
 		}
 
+		if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+			l.r.Move(1) // consume the backslash
+			l.consumeEscape()
+			continue
+		}
+
 		l.r.Move(1)
 	}
 }
