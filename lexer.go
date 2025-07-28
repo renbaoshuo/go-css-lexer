@@ -77,10 +77,10 @@ func (l *Lexer) Next() (TokenType, []rune) {
 			l.r.Move(3) // consume "-->"
 			return CDCToken, l.r.Shift()
 		}
-		l.r.Move(1)
 		if l.nextCharsAreIdentifier() {
 			return l.consumeIdentLikeToken()
 		}
+		l.r.Move(1)
 		return DelimiterToken, l.r.Shift()
 
 	case '*':

@@ -3,11 +3,12 @@ package csslexer
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#would-start-an-identifier
 func (l *Lexer) nextCharsAreIdentifier() bool {
 	first := l.r.Peek(0)
-	second := l.r.Peek(1)
 
 	if isNameStartCodePoint(first) {
 		return true
 	}
+
+	second := l.r.Peek(1)
 
 	if twoCharsAreValidEscape(first, second) {
 		return true
