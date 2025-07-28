@@ -80,11 +80,12 @@ func (l *Lexer) consumeNumber() {
 	next = l.r.Peek(0)
 	if next == 'e' || next == 'E' {
 		next_next := l.r.Peek(1)
-		if next_next == '+' || next_next == '-' {
-			l.r.Move(2) // consume 'e' or 'E' and the sign
-			l.r.MoveWhilePredicate(isASCIIDigit)
-		} else {
+
+		if isASCIIDigit(next_next) {
 			l.r.Move(1) // consume 'e' or 'E'
+			l.r.MoveWhilePredicate(isASCIIDigit)
+		} else if (next_next == '+' || next_next == '-') && isASCIIDigit(l.r.Peek(2)) {
+			l.r.Move(2) // consume 'e' or 'E' and the sign
 			l.r.MoveWhilePredicate(isASCIIDigit)
 		}
 	}
