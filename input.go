@@ -96,11 +96,6 @@ func (z *Input) Move(n int) {
 	z.pos += n
 }
 
-// Ignore ignores the current token by resetting the start position to the current position.
-func (z *Input) Ignore() {
-	z.start = z.pos
-}
-
 // Current returns the current token as a slice of runes.
 func (z *Input) Current() []rune {
 	if z.start >= z.pos {
