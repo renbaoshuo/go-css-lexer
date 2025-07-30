@@ -162,26 +162,3 @@ func (l *Lexer) consumeURLToken() (TokenType, []rune) {
 	l.consumeBadUrlRemnants()
 	return BadUrlToken, l.r.Shift()
 }
-
-// https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-the-remnants-of-a-bad-url
-func (l *Lexer) consumeBadUrlRemnants() {
-	for {
-		next := l.r.Peek(0)
-
-		if next == ')' {
-			l.r.Move(1)
-			return
-		}
-		if next == EOF {
-			return
-		}
-
-		if twoCharsAreValidEscape(next, l.r.Peek(1)) {
-			l.r.Move(1) // consume the backslash
-			l.consumeEscape()
-			continue
-		}
-
-		l.r.Move(1)
-	}
-}
