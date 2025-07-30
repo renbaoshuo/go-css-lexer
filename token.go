@@ -10,7 +10,7 @@ type TokenType int
 const (
 	// DefaultToken is the default token type, used when no specific type is matched.
 	// It is not being used in the lexer.
-	DefaultToken = iota
+	DefaultToken TokenType = iota
 
 	// Standard CSS token types
 	IdentToken
