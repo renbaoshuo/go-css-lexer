@@ -42,15 +42,15 @@ func (l *Lexer) consumeUnicodeRangeToken() (TokenType, []rune) {
 	return UnicodeRangeToken, l.r.Shift()
 }
 
-var urlRunes = []rune{'u', 'r', 'l', '('}
+var urlRunes = []rune{'u', 'r', 'l'}
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-ident-like-token
 func (l *Lexer) consumeIdentLikeToken() (TokenType, []rune) {
-	l.consumeName()
+	name := l.consumeName()
 
 	if l.r.Peek(0) == '(' {
 		l.r.Move(1) // consume the opening parenthesis
-		if equalIgnoringASCIICase(l.r.Current(), urlRunes) {
+		if equalIgnoringASCIICase(name, urlRunes) {
 			// The spec is slightly different so as to avoid dropping whitespace
 			// tokens, but they wouldn't be used and this is easier.
 			l.consumeWhitespace()
