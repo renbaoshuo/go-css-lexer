@@ -67,7 +67,6 @@ func BenchmarkLexer(b *testing.B) {
 			totalBytes := len(ungzip(dataGz)) * b.N
 			totalMiB := totalBytes / 1024 / 1024
 			b.ReportMetric(float64(totalMiB)/b.Elapsed().Seconds(), "MiB/s")
-
 		})
 	}
 }
