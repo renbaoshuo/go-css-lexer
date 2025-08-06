@@ -1,6 +1,8 @@
 package csslexer
 
-import "sync"
+import (
+	"sync"
+)
 
 // Provides a pool for []rune to avoid frequent allocations
 var runeSlicePool sync.Pool
