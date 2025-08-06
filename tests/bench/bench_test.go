@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"compress/gzip"
 	"embed"
-	_ "embed"
 	"io"
 	"testing"
 
