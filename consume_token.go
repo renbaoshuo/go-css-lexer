@@ -5,7 +5,7 @@ func (l *Lexer) consumeNumericToken() (TokenType, []rune) {
 	l.consumeNumber()
 
 	if l.nextCharsAreIdentifier() {
-		l.consumeName()
+		l.consumeNameOnly()
 		return DimensionToken, l.r.Shift()
 	} else if l.r.Peek(0) == '%' {
 		l.r.Move(1) // consume '%'

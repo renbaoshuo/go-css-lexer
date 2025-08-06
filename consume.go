@@ -76,6 +76,23 @@ func (l *Lexer) consumeName() []rune {
 	return name
 }
 
+// same as consumeName(), but does not return the name.
+// used for consuming names in contexts where the name is not needed
+func (l *Lexer) consumeNameOnly() {
+	for {
+		next := l.r.Peek(0)
+
+		if isNameCodePoint(next) {
+			l.r.Move(1)
+		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+			l.r.Move(1) // consume the backslash
+			l.consumeEscape()
+		} else {
+			break
+		}
+	}
+}
+
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-number
 func (l *Lexer) consumeNumber() {
 	next := l.r.Peek(0)
