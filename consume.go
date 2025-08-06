@@ -56,7 +56,7 @@ func (l *Lexer) consumeEscape() rune {
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-name
 func (l *Lexer) consumeName() []rune {
-	name := []rune{}
+	name := make([]rune, 0, 16)
 
 	for {
 		next := l.r.Peek(0)
