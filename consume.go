@@ -55,25 +55,43 @@ func (l *Lexer) consumeEscape() rune {
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-name
-func (l *Lexer) consumeName() []rune {
-	name := []rune{}
+func (l *Lexer) consumeName() *[]rune {
+	name := runeSlicePool.Get().(*[]rune)
+	*name = (*name)[:0] // reset the slice to empty but keep the capacity
 
 	for {
 		next := l.r.Peek(0)
 
 		if isNameCodePoint(next) {
 			l.r.Move(1)
-			name = append(name, next)
+			*name = append(*name, next)
 		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
 			l.r.Move(1) // consume the backslash
 			escaped := l.consumeEscape()
-			name = append(name, escaped)
+			*name = append(*name, escaped)
 		} else {
 			break
 		}
 	}
 
 	return name
+}
+
+// consumeNameOnly same as consumeName, but does not return the name.
+// used for consuming names in contexts where the name is not needed
+func (l *Lexer) consumeNameOnly() {
+	for {
+		next := l.r.Peek(0)
+
+		if isNameCodePoint(next) {
+			l.r.Move(1)
+		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+			l.r.Move(1) // consume the backslash
+			l.consumeEscape()
+		} else {
+			break
+		}
+	}
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-number

@@ -5,7 +5,7 @@ func (l *Lexer) consumeNumericToken() (TokenType, []rune) {
 	l.consumeNumber()
 
 	if l.nextCharsAreIdentifier() {
-		l.consumeName()
+		l.consumeNameOnly()
 		return DimensionToken, l.r.Shift()
 	} else if l.r.Peek(0) == '%' {
 		l.r.Move(1) // consume '%'
@@ -47,10 +47,11 @@ var urlRunes = []rune{'u', 'r', 'l'}
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-ident-like-token
 func (l *Lexer) consumeIdentLikeToken() (TokenType, []rune) {
 	name := l.consumeName()
+	defer runeSlicePool.Put(name)
 
 	if l.r.Peek(0) == '(' {
 		l.r.Move(1) // consume the opening parenthesis
-		if equalIgnoringASCIICase(name, urlRunes) {
+		if equalIgnoringASCIICase(*name, urlRunes) {
 			// The spec is slightly different so as to avoid dropping whitespace
 			// tokens, but they wouldn't be used and this is easier.
 			l.consumeWhitespace()

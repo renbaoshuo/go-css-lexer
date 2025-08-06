@@ -129,7 +129,7 @@ func (l *Lexer) Next() (TokenType, []rune) {
 	case '#':
 		l.r.Move(1)
 		if isNameCodePoint(l.r.Peek(0)) || twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
-			l.consumeName()
+			l.consumeNameOnly()
 			return HashToken, l.r.Shift()
 		}
 		return DelimiterToken, l.r.Shift()
@@ -174,7 +174,7 @@ func (l *Lexer) Next() (TokenType, []rune) {
 	case '@':
 		l.r.Move(1)
 		if l.nextCharsAreIdentifier() {
-			l.consumeName()
+			l.consumeNameOnly()
 			return AtKeywordToken, l.r.Shift()
 		}
 		return DelimiterToken, l.r.Shift()
