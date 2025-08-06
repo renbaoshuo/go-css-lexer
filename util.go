@@ -1,5 +1,19 @@
 package csslexer
 
+import "sync"
+
+// Provides a pool for []rune to avoid frequent allocations
+var runeSlicePool sync.Pool
+
+func init() {
+	runeSlicePool = sync.Pool{
+		New: func() any {
+			s := make([]rune, 0, 16)
+			return &s
+		},
+	}
+}
+
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#non-ascii-code-point
 func isASCII(c rune) bool {
 	return c < 128
