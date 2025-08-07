@@ -56,7 +56,9 @@ func decodeUrlToken(raw []rune) string {
 		return string(raw)
 	}
 
-	// Find the first parenthesis
+	// Find the first opening parenthesis, which marks the start of the URL content.
+	// If no parenthesis is found, decode the entire raw token as a fallback.
+	// Only the first parenthesis is considered, as per CSS syntax for url tokens.
 	parenIdx := slices.Index(raw, '(')
 	if parenIdx == -1 {
 		// No parenthesis found, decode the entire raw

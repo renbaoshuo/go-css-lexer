@@ -55,7 +55,7 @@ func TestDecodeToken(t *testing.T) {
 		},
 		{
 			name:      "default type",
-			tokenType: DefaultToken,
+			tokenType: IdentToken,
 			input:     "foo",
 			expect:    "foo",
 		},
