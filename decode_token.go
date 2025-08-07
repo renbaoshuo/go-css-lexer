@@ -6,12 +6,10 @@ import (
 )
 
 // DecodeToken decodes a CSS token based on its type and raw rune slice.
+//
 // It handles escape sequences for identifier-like tokens, strings, and URLs.
 //
-// It returns the decoded string representation of the token.
-//
-// NOTE: 1) For string-token, it removes surrounding quotes. 2) For url-token,
-// it removes whitespace around the content inside parentheses.
+// Return: the decoded string representation of the token.
 func DecodeToken(tokenType TokenType, raw []rune) string {
 	switch tokenType {
 	case IdentToken, FunctionToken, AtKeywordToken, HashToken, DimensionToken:
@@ -27,7 +25,7 @@ func DecodeToken(tokenType TokenType, raw []rune) string {
 
 // decodeIdentLikeToken decodes escape sequences in identifier-like tokens.
 //
-// This includes ident, function, at-keyword, hash, and dimension tokens
+// This includes ident, function, at-keyword, hash, and dimension tokens.
 func decodeIdentLikeToken(raw []rune) string {
 	if len(raw) == 0 {
 		return ""
@@ -36,21 +34,11 @@ func decodeIdentLikeToken(raw []rune) string {
 }
 
 // decodeStringToken decodes escape sequences in string tokens.
-//
-// NOTE: It removes surrounding quotes of the string.
 func decodeStringToken(raw []rune) string {
-	if len(raw) < 2 {
-		return string(raw)
-	}
-
-	// Remove quotes and decode escape sequences
-	content := raw[1 : len(raw)-1] // Remove surrounding quotes
-	return decodeEscapeSequences(content)
+	return decodeEscapeSequences(raw)
 }
 
 // decodeUrlToken decodes escape sequences in URL tokens.
-//
-// NOTE: It removes the whitespace around the content inside parentheses.
 func decodeUrlToken(raw []rune) string {
 	if len(raw) < 2 {
 		return string(raw)
@@ -74,18 +62,10 @@ func decodeUrlToken(raw []rune) string {
 		end--
 	}
 
-	// Skip leading and trailing whitespace
-	for start < end && isHTMLWhitespace(raw[start]) {
-		start++
-	}
-	for end > start && isHTMLWhitespace(raw[end-1]) {
-		end--
-	}
+	// decode the content inside parentheses
+	content := decodeEscapeSequences(raw[start:end])
 
-	content := raw[start:end]
-	contentStr := decodeEscapeSequences(content)
-
-	return prefix + "(" + contentStr + ")"
+	return prefix + "(" + content + ")"
 }
 
 // decodeEscapeSequences is a common function to decode escape sequences
