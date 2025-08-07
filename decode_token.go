@@ -1,7 +1,6 @@
 package csslexer
 
 import (
-	"slices"
 	"strings"
 )
 
@@ -12,60 +11,11 @@ import (
 // Return: the decoded string representation of the token.
 func DecodeToken(tokenType TokenType, raw []rune) string {
 	switch tokenType {
-	case IdentToken, FunctionToken, AtKeywordToken, HashToken, DimensionToken:
-		return decodeIdentLikeToken(raw)
-	case StringToken:
-		return decodeStringToken(raw)
-	case UrlToken:
-		return decodeUrlToken(raw)
+	case IdentToken, FunctionToken, AtKeywordToken, HashToken, DimensionToken, StringToken, UrlToken:
+		return decodeEscapeSequences(raw)
 	default:
 		return string(raw)
 	}
-}
-
-// decodeIdentLikeToken decodes escape sequences in identifier-like tokens.
-//
-// This includes ident, function, at-keyword, hash, and dimension tokens.
-func decodeIdentLikeToken(raw []rune) string {
-	if len(raw) == 0 {
-		return ""
-	}
-	return decodeEscapeSequences(raw)
-}
-
-// decodeStringToken decodes escape sequences in string tokens.
-func decodeStringToken(raw []rune) string {
-	return decodeEscapeSequences(raw)
-}
-
-// decodeUrlToken decodes escape sequences in URL tokens.
-func decodeUrlToken(raw []rune) string {
-	if len(raw) < 2 {
-		return string(raw)
-	}
-
-	// Find the first opening parenthesis, which marks the start of the URL content.
-	// If no parenthesis is found, decode the entire raw token as a fallback.
-	// Only the first parenthesis is considered, as per CSS syntax for url tokens.
-	parenIdx := slices.Index(raw, '(')
-	if parenIdx == -1 {
-		// No parenthesis found, decode the entire raw
-		return decodeEscapeSequences(raw)
-	}
-
-	prefix := decodeEscapeSequences(raw[:parenIdx])
-
-	// the content inside the parentheses
-	start := parenIdx + 1
-	end := len(raw)
-	if end > 0 && raw[end-1] == ')' {
-		end--
-	}
-
-	// decode the content inside parentheses
-	content := decodeEscapeSequences(raw[start:end])
-
-	return prefix + "(" + content + ")"
 }
 
 // decodeEscapeSequences is a common function to decode escape sequences
