@@ -7,6 +7,11 @@ import (
 
 // DecodeToken decodes a CSS token based on its type and raw rune slice.
 // It handles escape sequences for identifier-like tokens, strings, and URLs.
+//
+// It returns the decoded string representation of the token.
+//
+// NOTE: 1) For string-token, it removes surrounding quotes. 2) For url-token,
+// it removes whitespace around the content inside parentheses.
 func DecodeToken(tokenType TokenType, raw []rune) string {
 	switch tokenType {
 	case IdentToken, FunctionToken, AtKeywordToken, HashToken, DimensionToken:
@@ -20,7 +25,8 @@ func DecodeToken(tokenType TokenType, raw []rune) string {
 	}
 }
 
-// decodeIdentLikeToken decodes escape sequences in identifier-like tokens
+// decodeIdentLikeToken decodes escape sequences in identifier-like tokens.
+//
 // This includes ident, function, at-keyword, hash, and dimension tokens
 func decodeIdentLikeToken(raw []rune) string {
 	if len(raw) == 0 {
@@ -29,7 +35,9 @@ func decodeIdentLikeToken(raw []rune) string {
 	return decodeEscapeSequences(raw)
 }
 
-// decodeStringToken decodes escape sequences in string tokens
+// decodeStringToken decodes escape sequences in string tokens.
+//
+// NOTE: It removes surrounding quotes of the string.
 func decodeStringToken(raw []rune) string {
 	if len(raw) < 2 {
 		return string(raw)
@@ -40,7 +48,9 @@ func decodeStringToken(raw []rune) string {
 	return decodeEscapeSequences(content)
 }
 
-// decodeUrlToken decodes escape sequences in URL tokens
+// decodeUrlToken decodes escape sequences in URL tokens.
+//
+// NOTE: It removes the whitespace around the content inside parentheses.
 func decodeUrlToken(raw []rune) string {
 	if len(raw) < 2 {
 		return string(raw)
@@ -77,7 +87,7 @@ func decodeUrlToken(raw []rune) string {
 }
 
 // decodeEscapeSequences is a common function to decode escape sequences
-// in a rune slice
+// in a rune slice.
 func decodeEscapeSequences(runes []rune) string {
 	if len(runes) == 0 {
 		return ""
