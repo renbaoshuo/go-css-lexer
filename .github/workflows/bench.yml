@@ -21,4 +21,4 @@ jobs:
 
       - name: Run benchmarks
         continue-on-error: true
-        run: go test -benchmem -bench=".*" "go.baoshuo.dev/csslexer/bench" 
+        run: go test -v -benchmem -bench=".*" "go.baoshuo.dev/csslexer/bench" 

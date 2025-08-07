@@ -16,20 +16,6 @@ import (
 //go:embed testdata
 var fs embed.FS
 
-func ungzip(gz []byte) []byte {
-	reader, err := gzip.NewReader(bytes.NewReader(gz))
-	if err != nil {
-		return nil
-	}
-	defer reader.Close()
-
-	var out bytes.Buffer
-	if _, err := io.Copy(&out, reader); err != nil {
-		return nil
-	}
-	return out.Bytes()
-}
-
 func BenchmarkLexer(b *testing.B) {
 	files, err := fs.ReadDir("testdata")
 	if err != nil {
@@ -69,4 +55,62 @@ func BenchmarkLexer(b *testing.B) {
 			b.ReportMetric(float64(totalMiB)/b.Elapsed().Seconds(), "MiB/s")
 		})
 	}
+}
+
+func BenchmarkDecodeToken(b *testing.B) {
+	files, err := fs.ReadDir("testdata")
+	if err != nil {
+		b.Fatalf("failed to read testdata directory: %v", err)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		b.Run(file.Name(), func(b *testing.B) {
+			dataGz, err := fs.ReadFile("testdata/" + file.Name())
+			if err != nil {
+				b.Fatalf("failed to read file %s: %v", file.Name(), err)
+			}
+			data := ungzip(dataGz)
+
+			type token struct {
+				Type csslexer.TokenType
+				Raw  []rune
+			}
+
+			// 预解析所有 token，不计时
+			input := csslexer.NewInputBytes(data)
+			lexer := csslexer.NewLexer(input)
+			var tokens []token
+			for {
+				tokenType, raw := lexer.Next()
+				if tokenType == csslexer.EOFToken {
+					break
+				}
+				tokens = append(tokens, token{tokenType, raw})
+			}
+
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				for _, t := range tokens {
+					_ = csslexer.DecodeToken(t.Type, t.Raw)
+				}
+			}
+			b.StopTimer()
+		})
+	}
+}
+
+func ungzip(gz []byte) []byte {
+	reader, err := gzip.NewReader(bytes.NewReader(gz))
+	if err != nil {
+		return nil
+	}
+	defer reader.Close()
+
+	var out bytes.Buffer
+	if _, err := io.Copy(&out, reader); err != nil {
+		return nil
+	}
+	return out.Bytes()
 }
