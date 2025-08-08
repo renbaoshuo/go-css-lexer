@@ -9,7 +9,7 @@ var runeSlicePool sync.Pool
 
 func init() {
 	runeSlicePool = sync.Pool{
-		New: func() any {
+		New: func() interface{} {
 			s := make([]rune, 0, 16)
 			return &s
 		},
