@@ -13,33 +13,35 @@ const (
 	DefaultToken TokenType = iota
 
 	// Standard CSS token types
-	IdentToken
-	FunctionToken
-	AtKeywordToken
-	HashToken
-	StringToken
-	BadStringToken
-	UrlToken
-	BadUrlToken
-	DelimiterToken
-	NumberToken
-	PercentageToken
-	DimensionToken
-	WhitespaceToken
-	CDOToken
-	CDCToken
-	ColonToken
-	SemicolonToken
-	CommaToken
-	LeftParenthesisToken
-	RightParenthesisToken
-	LeftBracketToken
-	RightBracketToken
-	LeftBraceToken
-	RightBraceToken
-	EOFToken
+
+	IdentToken            // <ident-token>
+	FunctionToken         // <function-token>
+	AtKeywordToken        // <at-keyword-token>
+	HashToken             // <hash-token>
+	StringToken           // <string-token>
+	BadStringToken        // <bad-string-token>
+	UrlToken              // <url-token>
+	BadUrlToken           // <bad-url-token>
+	DelimiterToken        // <delim-token>
+	NumberToken           // <number-token>
+	PercentageToken       // <percentage-token>
+	DimensionToken        // <dimension-token>
+	WhitespaceToken       // <whitespace-token>
+	CDOToken              // <CDO-token>
+	CDCToken              // <CDC-token>
+	ColonToken            // <colon-token>
+	SemicolonToken        // <semicolon-token>
+	CommaToken            // <comma-token>
+	LeftParenthesisToken  // <(-token>
+	RightParenthesisToken // <)-token>
+	LeftBracketToken      // <[-token>
+	RightBracketToken     // <]-token>
+	LeftBraceToken        // <{-token>
+	RightBraceToken       // <}-token>
+	EOFToken              // <EOF-token>
 
 	// Additional CSS token types
+
 	CommentToken
 	IncludeMatchToken
 	DashMatchToken
