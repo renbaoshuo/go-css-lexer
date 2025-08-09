@@ -3,12 +3,14 @@ package csslexer
 // Lexer is the state for the CSS lexer.
 type Lexer struct {
 	r *Input // The input stream of runes to be lexed.
+	p *token // The peeked token, nil if no token is peeked.
 }
 
 // NewLexer creates a new Lexer instance with the given Input.
 func NewLexer(r *Input) *Lexer {
 	return &Lexer{
 		r: r,
+		p: nil,
 	}
 }
 
@@ -20,8 +22,34 @@ func (l *Lexer) Err() error {
 	return l.r.Err()
 }
 
+// Peek returns the next token without advancing the position.
+// It returns the token type and data of the next token.
+func (l *Lexer) Peek() (TokenType, []rune) {
+	if l.p == nil {
+		tokenType, data := l.readNextToken()
+		// Get a token from the pool
+		p := tokenPool.Get().(*token)
+		p.Type = tokenType
+		p.Data = data
+		l.p = p
+	}
+	return l.p.Type, l.p.Data
+}
+
 // Next reads the next token from the input stream.
 func (l *Lexer) Next() (TokenType, []rune) {
+	if l.p != nil {
+		tokenType, data := l.p.Type, l.p.Data
+		tokenPool.Put(l.p) // Return the token to the pool
+		l.p = nil
+		return tokenType, data
+	}
+	return l.readNextToken()
+}
+
+// readNextToken reads the next token from the input stream.
+// This is the internal method that actually parses tokens.
+func (l *Lexer) readNextToken() (TokenType, []rune) {
 	switch l.r.Peek(0) {
 	case EOF:
 		return EOFToken, nil

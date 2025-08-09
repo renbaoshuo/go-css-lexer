@@ -8,7 +8,9 @@ import (
 type TokenType int
 
 const (
-	// DefaultToken is the default token type, used when no specific type is matched.
+	// DefaultToken is the default token type, used when no
+	// specific type is matched.
+	//
 	// It is not being used in the lexer.
 	DefaultToken TokenType = iota
 

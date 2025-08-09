@@ -101,6 +101,48 @@ func BenchmarkDecodeToken(b *testing.B) {
 	}
 }
 
+func BenchmarkLexerWithPeek(b *testing.B) {
+	files, err := fs.ReadDir("testdata")
+	if err != nil {
+		b.Fatalf("failed to read testdata directory: %v", err)
+	}
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		b.Run(file.Name(), func(b *testing.B) {
+			dataGz, err := fs.ReadFile("testdata/" + file.Name())
+			if err != nil {
+				b.Fatalf("failed to read file %s: %v", file.Name(), err)
+			}
+
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				b.StopTimer()
+				input := csslexer.NewInputBytes(ungzip(dataGz))
+				lexer := csslexer.NewLexer(input)
+
+				b.StartTimer()
+				for {
+					_, _ = lexer.Peek()
+					tokenType, _ := lexer.Next()
+					if tokenType == csslexer.EOFToken {
+						break
+					}
+				}
+				if err := lexer.Err(); err != nil && err != io.EOF {
+					b.Fatalf("lexer error: %v", err)
+				}
+			}
+			b.StopTimer()
+
+			totalBytes := len(ungzip(dataGz)) * b.N
+			totalMiB := totalBytes / 1024 / 1024
+			b.ReportMetric(float64(totalMiB)/b.Elapsed().Seconds(), "MiB/s")
+		})
+	}
+}
+
 func ungzip(gz []byte) []byte {
 	reader, err := gzip.NewReader(bytes.NewReader(gz))
 	if err != nil {
