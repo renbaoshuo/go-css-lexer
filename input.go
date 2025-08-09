@@ -118,3 +118,27 @@ func (z *Input) MoveWhilePredicate(pred func(rune) bool) {
 		z.Move(1)
 	}
 }
+
+// SaveState saves the current position and start position.
+// It returns the current position and start position as integers.
+func (z *Input) State() InputState {
+	return *NewInputState(z.pos, z.start)
+}
+
+// RestoreState restores the input state from the given InputState.
+// It sets the current position and start position to the values in the InputState.
+// If the position is beyond the end of the input, it sets the error to io.EOF.
+// Otherwise, it clears the error.
+//
+// This method is used to restore the input state after parsing a token.
+// It allows the lexer to backtrack to a previous state if needed.
+func (z *Input) RestoreState(s InputState) {
+	z.pos = s.Pos()
+	z.start = s.Start()
+
+	if z.pos >= len(z.runes) {
+		z.err = io.EOF
+	} else {
+		z.err = nil
+	}
+}
