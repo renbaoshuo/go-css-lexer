@@ -39,13 +39,10 @@ func BenchmarkLexer(b *testing.B) {
 
 				b.StartTimer()
 				for {
-					tokenType, _ := lexer.Next()
-					if tokenType == csslexer.EOFToken {
+					token := lexer.Next()
+					if token.Type == csslexer.EOFToken {
 						break
 					}
-				}
-				if err := lexer.Err(); err != nil && err != io.EOF {
-					b.Fatalf("lexer error: %v", err)
 				}
 			}
 			b.StopTimer()
@@ -73,27 +70,22 @@ func BenchmarkDecodeToken(b *testing.B) {
 			}
 			data := ungzip(dataGz)
 
-			type token struct {
-				Type csslexer.TokenType
-				Raw  []rune
-			}
-
 			// 预解析所有 token，不计时
 			input := csslexer.NewInputBytes(data)
 			lexer := csslexer.NewLexer(input)
-			var tokens []token
+			var tokens []csslexer.Token
 			for {
-				tokenType, raw := lexer.Next()
-				if tokenType == csslexer.EOFToken {
+				t := lexer.Next()
+				if t.Type == csslexer.EOFToken {
 					break
 				}
-				tokens = append(tokens, token{tokenType, raw})
+				tokens = append(tokens, t)
 			}
 
 			b.ResetTimer()
 			for i := 0; i < b.N; i++ {
 				for _, t := range tokens {
-					_ = csslexer.DecodeToken(t.Type, t.Raw)
+					_ = t.DecodeData()
 				}
 			}
 			b.StopTimer()
@@ -124,14 +116,11 @@ func BenchmarkLexerWithPeek(b *testing.B) {
 
 				b.StartTimer()
 				for {
-					_, _ = lexer.Peek()
-					tokenType, _ := lexer.Next()
-					if tokenType == csslexer.EOFToken {
+					_ = lexer.Peek()
+					token := lexer.Next()
+					if token.Type == csslexer.EOFToken {
 						break
 					}
-				}
-				if err := lexer.Err(); err != nil && err != io.EOF {
-					b.Fatalf("lexer error: %v", err)
 				}
 			}
 			b.StopTimer()

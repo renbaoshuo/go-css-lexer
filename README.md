@@ -36,7 +36,7 @@ lexer := csslexer.NewLexer(input)
 Read next token:
 
 ```go
-token, err := lexer.Next()
+token := lexer.Next()
 ```
 
 The types of tokens can be found in the `csslexer.TokenType` type, and the definition of each token type is available in `token.go`.
