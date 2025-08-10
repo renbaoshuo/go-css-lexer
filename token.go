@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+// ===== TokenType =====
+
 // TokenType represents the type of a token in the CSS lexer.
 type TokenType int
 
@@ -129,5 +131,32 @@ func (tt TokenType) String() string {
 
 	default:
 		return fmt.Sprintf("Unknown(%d)", tt)
+	}
+}
+
+// ===== TokenData =====
+
+// TokenData represents the raw data of a token.
+type TokenData []rune
+
+func (td TokenData) String() string {
+	return string(td)
+}
+
+// ===== Token =====
+
+// Token represents a token in the CSS lexer.
+type Token struct {
+	Type TokenType
+	Data TokenData
+}
+
+// DecodeData decodes the token data based on its type.
+func (t Token) DecodeData() string {
+	switch t.Type {
+	case IdentToken, FunctionToken, AtKeywordToken, HashToken, DimensionToken, StringToken, UrlToken:
+		return decodeEscapeSequences(t.Data)
+	default:
+		return string(t.Data)
 	}
 }

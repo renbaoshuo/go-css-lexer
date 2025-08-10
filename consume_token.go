@@ -1,7 +1,7 @@
 package csslexer
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-numeric-token
-func (l *Lexer) consumeNumericToken() (TokenType, []rune) {
+func (l *Lexer) consumeNumericToken() (TokenType, TokenData) {
 	l.consumeNumber()
 
 	if l.nextCharsAreIdentifier() {
@@ -16,7 +16,7 @@ func (l *Lexer) consumeNumericToken() (TokenType, []rune) {
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#urange
-func (l *Lexer) consumeUnicodeRangeToken() (TokenType, []rune) {
+func (l *Lexer) consumeUnicodeRangeToken() (TokenType, TokenData) {
 	// range start
 	start_length_remaining := 6
 	for next := l.r.Peek(0); start_length_remaining > 0 && next != EOF && isASCIIHexDigit(next); next = l.r.Peek(0) {
@@ -45,7 +45,7 @@ func (l *Lexer) consumeUnicodeRangeToken() (TokenType, []rune) {
 var urlRunes = []rune{'u', 'r', 'l'}
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-ident-like-token
-func (l *Lexer) consumeIdentLikeToken() (TokenType, []rune) {
+func (l *Lexer) consumeIdentLikeToken() (TokenType, TokenData) {
 	name := l.consumeName()
 	defer runeSlicePool.Put(name)
 
@@ -69,7 +69,7 @@ func (l *Lexer) consumeIdentLikeToken() (TokenType, []rune) {
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-string-token
-func (l *Lexer) consumeStringToken() (TokenType, []rune) {
+func (l *Lexer) consumeStringToken() (TokenType, TokenData) {
 	until := l.r.Peek(0) // the opening quote, already checked valid by the caller
 	l.r.Move(1)
 
@@ -113,7 +113,7 @@ func (l *Lexer) consumeStringToken() (TokenType, []rune) {
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-url-token
-func (l *Lexer) consumeURLToken() (TokenType, []rune) {
+func (l *Lexer) consumeURLToken() (TokenType, TokenData) {
 	for {
 		next := l.r.Peek(0)
 

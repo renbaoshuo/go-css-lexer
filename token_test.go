@@ -63,7 +63,11 @@ func TestDecodeToken(t *testing.T) {
 
 	for _, tc := range tests {
 		raw := []rune(tc.input)
-		got := DecodeToken(tc.tokenType, raw)
+		token := Token{
+			Type: tc.tokenType,
+			Data: raw,
+		}
+		got := token.DecodeData()
 		if got != tc.expect {
 			t.Errorf("%s: got '%s', want '%s'", tc.name, got, tc.expect)
 		}

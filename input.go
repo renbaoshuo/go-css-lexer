@@ -60,24 +60,6 @@ func NewInputReader(r io.Reader) *Input {
 	return NewInputBytes(b)
 }
 
-// PeekErr checks if there is an error at the current position plus the specified offset.
-func (z *Input) PeekErr(pos int) error {
-	if z.err != nil {
-		return z.err
-	}
-
-	if z.pos+pos >= len(z.runes) {
-		return io.EOF
-	}
-
-	return nil
-}
-
-// Err returns the error at the current position.
-func (z *Input) Err() error {
-	return z.PeekErr(0)
-}
-
 // Peek returns the next rune in the input stream without advancing the position.
 func (z *Input) Peek(n int) rune {
 	if z.pos+n >= len(z.runes) {

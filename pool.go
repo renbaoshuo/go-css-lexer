@@ -12,19 +12,10 @@ var runeSlicePool = sync.Pool{
 	},
 }
 
-// token represents a parsed token with its type and data.
-//
-// It is used internally by the lexer to represent the tokens
-// it generates.
-type token struct {
-	Type TokenType
-	Data []rune
-}
-
 // tokenPool is a sync.Pool for reusing token instances.
 var tokenPool = sync.Pool{
 	New: func() interface{} {
-		return &token{
+		return &Token{
 			Type: DefaultToken,
 			Data: nil,
 		}
