@@ -1,5 +1,9 @@
 package csslexer
 
+import (
+	"go.baoshuo.dev/cssutil"
+)
+
 // Lexer is the state for the CSS lexer.
 type Lexer struct {
 	r *Input // The input stream of runes to be lexed.
@@ -149,7 +153,7 @@ func (l *Lexer) readNextToken() (TokenType, TokenData) {
 
 	case '#':
 		l.r.Move(1)
-		if isNameCodePoint(l.r.Peek(0)) || twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
+		if cssutil.IsIdentCodePoint(l.r.Peek(0)) || twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
 			l.consumeNameOnly()
 			return HashToken, l.r.Shift()
 		}
@@ -202,7 +206,7 @@ func (l *Lexer) readNextToken() (TokenType, TokenData) {
 
 	case 'u', 'U':
 		if l.r.Peek(1) == '+' &&
-			(isASCIIHexDigit(l.r.Peek(2)) || l.r.Peek(2) == '?') {
+			(cssutil.IsHexDigit(l.r.Peek(2)) || l.r.Peek(2) == '?') {
 			l.r.Move(2) // consume "u+"
 			return l.consumeUnicodeRangeToken()
 		}

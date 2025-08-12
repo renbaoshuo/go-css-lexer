@@ -1,5 +1,9 @@
 package csslexer
 
+import (
+	"go.baoshuo.dev/cssutil"
+)
+
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-comment
 func (l *Lexer) consumeUntilCommentEnd() {
 	for {
@@ -24,13 +28,13 @@ func (l *Lexer) consumeEscape() rune {
 
 	next := l.r.Peek(0)
 
-	if isASCIIHexDigit(next) {
+	if cssutil.IsHexDigit(next) {
 		l.r.Move(1)
 		res = hexDigitToValue(next)
 
 		for i := 1; i < 6; i++ {
 			c := l.r.Peek(0)
-			if isASCIIHexDigit(c) {
+			if cssutil.IsHexDigit(c) {
 				l.r.Move(1)
 				res = res*16 + hexDigitToValue(c)
 			} else {
@@ -62,7 +66,7 @@ func (l *Lexer) consumeName() *[]rune {
 	for {
 		next := l.r.Peek(0)
 
-		if isNameCodePoint(next) {
+		if cssutil.IsIdentCodePoint(next) {
 			l.r.Move(1)
 			*name = append(*name, next)
 		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
@@ -83,7 +87,7 @@ func (l *Lexer) consumeNameOnly() {
 	for {
 		next := l.r.Peek(0)
 
-		if isNameCodePoint(next) {
+		if cssutil.IsIdentCodePoint(next) {
 			l.r.Move(1)
 		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
 			l.r.Move(1) // consume the backslash
@@ -104,13 +108,13 @@ func (l *Lexer) consumeNumber() {
 	}
 
 	// consume the integer part of the number
-	l.r.MoveWhilePredicate(isASCIIDigit)
+	l.r.MoveWhilePredicate(cssutil.IsDigit)
 
 	// float
 	next = l.r.Peek(0)
-	if next == '.' && isASCIIDigit(l.r.Peek(1)) {
+	if next == '.' && cssutil.IsDigit(l.r.Peek(1)) {
 		l.r.Move(1) // consume the '.'
-		l.r.MoveWhilePredicate(isASCIIDigit)
+		l.r.MoveWhilePredicate(cssutil.IsDigit)
 	}
 
 	// scientific notation
@@ -118,12 +122,12 @@ func (l *Lexer) consumeNumber() {
 	if next == 'e' || next == 'E' {
 		next_next := l.r.Peek(1)
 
-		if isASCIIDigit(next_next) {
+		if cssutil.IsDigit(next_next) {
 			l.r.Move(1) // consume 'e' or 'E'
-			l.r.MoveWhilePredicate(isASCIIDigit)
-		} else if (next_next == '+' || next_next == '-') && isASCIIDigit(l.r.Peek(2)) {
+			l.r.MoveWhilePredicate(cssutil.IsDigit)
+		} else if (next_next == '+' || next_next == '-') && cssutil.IsDigit(l.r.Peek(2)) {
 			l.r.Move(2) // consume 'e' or 'E' and the sign
-			l.r.MoveWhilePredicate(isASCIIDigit)
+			l.r.MoveWhilePredicate(cssutil.IsDigit)
 		}
 	}
 }
@@ -132,7 +136,7 @@ func (l *Lexer) consumeSingleWhitespace() {
 	next := l.r.Peek(0)
 	if next == '\r' && l.r.Peek(1) == '\n' {
 		l.r.Move(2) // consume CRLF
-	} else if isHTMLWhitespace(next) {
+	} else if cssutil.IsWhitespace(next) {
 		l.r.Move(1) // consume the whitespace character
 	}
 }
@@ -141,7 +145,7 @@ func (l *Lexer) consumeWhitespace() {
 	for {
 		next := l.r.Peek(0)
 
-		if isHTMLWhitespace(next) {
+		if cssutil.IsWhitespace(next) {
 			l.consumeSingleWhitespace()
 		} else if next == EOF {
 			return

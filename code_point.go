@@ -1,10 +1,14 @@
 package csslexer
 
+import (
+	"go.baoshuo.dev/cssutil"
+)
+
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#would-start-an-identifier
 func (l *Lexer) nextCharsAreIdentifier() bool {
 	first := l.r.Peek(0)
 
-	if isNameStartCodePoint(first) {
+	if cssutil.IsIdentStartCodePoint(first) {
 		return true
 	}
 
@@ -15,7 +19,7 @@ func (l *Lexer) nextCharsAreIdentifier() bool {
 	}
 
 	if first == '-' {
-		return isNameStartCodePoint(second) || second == '-' ||
+		return cssutil.IsIdentStartCodePoint(second) || second == '-' ||
 			twoCharsAreValidEscape(second, l.r.Peek(2))
 	}
 
@@ -26,28 +30,28 @@ func (l *Lexer) nextCharsAreIdentifier() bool {
 func (l *Lexer) nextCharsAreNumber() bool {
 	first := l.r.Peek(0)
 
-	if isASCIIDigit(first) {
+	if cssutil.IsDigit(first) {
 		return true
 	}
 
 	second := l.r.Peek(1)
 
 	if first == '+' || first == '-' {
-		if isASCIIDigit(second) {
+		if cssutil.IsDigit(second) {
 			return true
 		}
 
 		if second == '.' {
 			third := l.r.Peek(2)
 
-			if isASCIIDigit(third) {
+			if cssutil.IsDigit(third) {
 				return true
 			}
 		}
 	}
 
 	if first == '.' {
-		return isASCIIDigit(second)
+		return cssutil.IsDigit(second)
 	}
 
 	return false

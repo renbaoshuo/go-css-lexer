@@ -1,5 +1,9 @@
 package csslexer
 
+import (
+	"go.baoshuo.dev/cssutil"
+)
+
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-numeric-token
 func (l *Lexer) consumeNumericToken() (TokenType, TokenData) {
 	l.consumeNumber()
@@ -19,7 +23,7 @@ func (l *Lexer) consumeNumericToken() (TokenType, TokenData) {
 func (l *Lexer) consumeUnicodeRangeToken() (TokenType, TokenData) {
 	// range start
 	start_length_remaining := 6
-	for next := l.r.Peek(0); start_length_remaining > 0 && next != EOF && isASCIIHexDigit(next); next = l.r.Peek(0) {
+	for next := l.r.Peek(0); start_length_remaining > 0 && next != EOF && cssutil.IsHexDigit(next); next = l.r.Peek(0) {
 		l.r.Move(1) // consume the hex digit
 		start_length_remaining--
 	}
@@ -29,11 +33,11 @@ func (l *Lexer) consumeUnicodeRangeToken() (TokenType, TokenData) {
 			l.r.Move(1) // consume the '?'
 			start_length_remaining--
 		}
-	} else if l.r.Peek(0) == '-' && isASCIIHexDigit(l.r.Peek(1)) { // range end
+	} else if l.r.Peek(0) == '-' && cssutil.IsHexDigit(l.r.Peek(1)) { // range end
 		l.r.Move(1) // consume the '-'
 
 		end_length_remaining := 6
-		for next := l.r.Peek(0); end_length_remaining > 0 && next != EOF && isASCIIHexDigit(next); next = l.r.Peek(0) {
+		for next := l.r.Peek(0); end_length_remaining > 0 && next != EOF && cssutil.IsHexDigit(next); next = l.r.Peek(0) {
 			l.r.Move(1) // consume the hex digit
 			end_length_remaining--
 		}
@@ -42,7 +46,7 @@ func (l *Lexer) consumeUnicodeRangeToken() (TokenType, TokenData) {
 	return UnicodeRangeToken, l.r.Shift()
 }
 
-var urlRunes = []rune{'u', 'r', 'l'}
+var urlRunes = []rune("url")
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-ident-like-token
 func (l *Lexer) consumeIdentLikeToken() (TokenType, TokenData) {
@@ -85,7 +89,7 @@ func (l *Lexer) consumeStringToken() (TokenType, TokenData) {
 			return StringToken, l.r.Shift()
 		}
 
-		if isCSSNewline(next) {
+		if cssutil.IsNewline(next) {
 			return BadStringToken, l.r.Shift()
 		}
 
@@ -97,7 +101,7 @@ func (l *Lexer) consumeStringToken() (TokenType, TokenData) {
 				continue
 			}
 
-			if isCSSNewline(next_next) {
+			if cssutil.IsNewline(next_next) {
 				l.r.Move(1)
 				l.consumeSingleWhitespace()
 			} else if twoCharsAreValidEscape(next, next_next) {
@@ -126,7 +130,7 @@ func (l *Lexer) consumeURLToken() (TokenType, TokenData) {
 			return UrlToken, l.r.Shift()
 		}
 
-		if isHTMLWhitespace(next) {
+		if cssutil.IsWhitespace(next) {
 			l.consumeWhitespace()
 
 			next_next := l.r.Peek(0)
@@ -142,7 +146,7 @@ func (l *Lexer) consumeURLToken() (TokenType, TokenData) {
 			break
 		}
 
-		if next == '"' || next == '\'' || isNonPrintableCodePoint(next) {
+		if next == '"' || next == '\'' || cssutil.IsNonPrintableCodePoint(next) {
 			l.r.Move(1) // consume the invalid character
 			break
 		}
