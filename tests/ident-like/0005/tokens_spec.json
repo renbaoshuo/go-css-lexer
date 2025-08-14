@@ -1,29 +1,22 @@
 [
 	{
-		"type": "ident-token",
-		"raw": "\\0ab ",
+		"type": "function-token",
+		"raw": "url(",
 		"startIndex": 0,
-		"endIndex": 5,
-		"value": "«"
+		"endIndex": 4,
+		"value": "url"
 	},
 	{
 		"type": "whitespace-token",
 		"raw": " ",
-		"startIndex": 5,
-		"endIndex": 6,
+		"startIndex": 4,
+		"endIndex": 5,
 		"value": " "
 	},
 	{
-		"type": "(-token",
-		"raw": "(",
-		"startIndex": 6,
-		"endIndex": 7,
-		"value": "("
-	},
-	{
-		"type": "ident-token",
-		"raw": "foo",
-		"startIndex": 7,
+		"type": "string-token",
+		"raw": "'foo'",
+		"startIndex": 5,
 		"endIndex": 10,
 		"value": "foo"
 	},

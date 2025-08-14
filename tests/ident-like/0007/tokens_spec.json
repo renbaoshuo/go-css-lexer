@@ -7,24 +7,31 @@
 		"value": "url"
 	},
 	{
+		"type": "whitespace-token",
+		"raw": "   ",
+		"startIndex": 4,
+		"endIndex": 7,
+		"value": "   "
+	},
+	{
 		"type": "string-token",
 		"raw": "'foo'",
-		"startIndex": 5,
-		"endIndex": 10,
+		"startIndex": 7,
+		"endIndex": 12,
 		"value": "foo"
 	},
 	{
 		"type": ")-token",
 		"raw": ")",
-		"startIndex": 10,
-		"endIndex": 11,
+		"startIndex": 12,
+		"endIndex": 13,
 		"value": ")"
 	},
 	{
 		"type": "whitespace-token",
 		"raw": "\n",
-		"startIndex": 11,
-		"endIndex": 12,
+		"startIndex": 13,
+		"endIndex": 14,
 		"value": "\n"
 	}
 ]

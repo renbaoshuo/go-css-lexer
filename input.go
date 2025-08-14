@@ -27,6 +27,13 @@ func NewInput(input string) *Input {
 
 // NewInputRunes creates a new Input instance from the given slice of runes.
 func NewInputRunes(runes []rune) *Input {
+	// Preprocess.
+	for i, r := range runes {
+		if r == 0x00 { // U+0000 NULL CHARACTER
+			runes[i] = '\uFFFD' // Replace with U+FFFD REPLACEMENT CHARACTER
+		}
+	}
+
 	return &Input{
 		runes: runes,
 		pos:   0,
@@ -60,6 +67,24 @@ func NewInputReader(r io.Reader) *Input {
 	return NewInputBytes(b)
 }
 
+// PeekErr checks if there is an error at the current position plus the specified offset.
+func (z *Input) PeekErr(pos int) error {
+	if z.err != nil {
+		return z.err
+	}
+
+	if z.pos+pos >= len(z.runes) {
+		return io.EOF
+	}
+
+	return nil
+}
+
+// Err returns the error at the current position.
+func (z *Input) Err() error {
+	return z.PeekErr(0)
+}
+
 // Peek returns the next rune in the input stream without advancing the position.
 func (z *Input) Peek(n int) rune {
 	if z.pos+n >= len(z.runes) {
@@ -78,6 +103,14 @@ func (z *Input) Move(n int) {
 	z.pos += n
 }
 
+// CurrentOffset returns the current offset in the input stream.
+//
+// It calculates the offset as the difference between the current position
+// and the start position.
+func (z *Input) CurrentOffset() int {
+	return z.pos - z.start
+}
+
 // Current returns the current token as a slice of runes.
 func (z *Input) Current() []rune {
 	if z.start >= z.pos {
@@ -86,12 +119,44 @@ func (z *Input) Current() []rune {
 	return z.runes[z.start:z.pos:z.pos]
 }
 
-// Shift returns the current token and resets the start position to the current position.
-func (z *Input) Shift() []rune {
-	// Shift returns the current token and resets the start position.
-	current := z.Current()
+// CurrentString returns the current token as a string.
+func (z *Input) CurrentString() string {
+	return string(z.Current())
+}
+
+// CurrentAfterOffset returns the current token after applying the
+// offset.
+//
+// If the offset is greater than the current position, it returns an
+// empty slice.
+func (z *Input) CurrentAfterOffset(offset int) []rune {
+	if z.start+offset >= z.pos {
+		return nullRune
+	}
+	return z.runes[z.start+offset : z.pos : z.pos]
+}
+
+// CurrentAfterOffsetString returns the current token as a string after
+// applying the offset.
+func (z *Input) CurrentAfterOffsetString(offset int) string {
+	return string(z.CurrentAfterOffset(offset))
+}
+
+// Shift resets the start position to the current position.
+func (z *Input) Shift() {
 	z.start = z.pos
+}
+
+// Shift returns the current token and resets the start position to the current position.
+func (z *Input) ShiftRunes() []rune {
+	current := z.Current()
+	z.Shift()
 	return current
+}
+
+// ShiftString returns the current token as a string and resets the start position.
+func (z *Input) ShiftString() string {
+	return string(z.ShiftRunes())
 }
 
 // MoveWhilePredicate advances the position while the predicate function returns true for the current rune.
