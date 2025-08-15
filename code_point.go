@@ -14,13 +14,13 @@ func (l *Lexer) nextCharsAreIdentifier() bool {
 
 	second := l.r.Peek(1)
 
-	if twoCharsAreValidEscape(first, second) {
+	if cssutil.TwoCodePointsStartsAValidEscape(first, second) {
 		return true
 	}
 
 	if first == '-' {
 		return cssutil.IsIdentStartCodePoint(second) || second == '-' ||
-			twoCharsAreValidEscape(second, l.r.Peek(2))
+			cssutil.TwoCodePointsStartsAValidEscape(second, l.r.Peek(2))
 	}
 
 	return false

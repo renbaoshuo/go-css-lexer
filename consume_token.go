@@ -107,7 +107,7 @@ func (l *Lexer) consumeStringToken() (TokenType, string) {
 			if cssutil.IsNewline(next_next) {
 				l.r.Move(1)
 				l.consumeSingleWhitespace()
-			} else if twoCharsAreValidEscape(next, next_next) {
+			} else if cssutil.TwoCodePointsStartsAValidEscape(next, next_next) {
 				l.r.Move(1) // consume the backslash
 				result.WriteRune(l.consumeEscape())
 			} else {
@@ -159,7 +159,7 @@ func (l *Lexer) consumeURLToken() (TokenType, string) {
 		}
 
 		if next == '\\' {
-			if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+			if cssutil.TwoCodePointsStartsAValidEscape(next, l.r.Peek(1)) {
 				l.r.Move(1) // consume the backslash
 				result.WriteRune(l.consumeEscape())
 				continue

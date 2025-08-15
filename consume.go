@@ -70,7 +70,7 @@ func (l *Lexer) consumeName() string {
 		if cssutil.IsIdentCodePoint(next) {
 			l.r.Move(1)
 			result.WriteRune(next)
-		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+		} else if cssutil.TwoCodePointsStartsAValidEscape(next, l.r.Peek(1)) {
 			l.r.Move(1) // consume the backslash
 			escaped := l.consumeEscape()
 			result.WriteRune(escaped)
@@ -164,7 +164,7 @@ func (l *Lexer) consumeBadUrlRemnants() {
 			break
 		}
 
-		if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+		if cssutil.TwoCodePointsStartsAValidEscape(next, l.r.Peek(1)) {
 			l.r.Move(1) // consume the backslash
 			l.consumeEscape()
 			continue

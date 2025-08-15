@@ -141,7 +141,7 @@ func (l *Lexer) readNextToken() (TokenType, string) {
 		return DelimiterToken, l.r.CurrentString()
 
 	case '\\':
-		if twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
+		if cssutil.TwoCodePointsStartsAValidEscape(l.r.Peek(0), l.r.Peek(1)) {
 			return l.consumeIdentLikeToken()
 		}
 		l.r.Move(1)
@@ -157,7 +157,7 @@ func (l *Lexer) readNextToken() (TokenType, string) {
 
 	case '#':
 		l.r.Move(1)
-		if cssutil.IsIdentCodePoint(l.r.Peek(0)) || twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
+		if cssutil.IsIdentCodePoint(l.r.Peek(0)) || cssutil.TwoCodePointsStartsAValidEscape(l.r.Peek(0), l.r.Peek(1)) {
 			name := l.consumeName()
 			return HashToken, name
 		}
