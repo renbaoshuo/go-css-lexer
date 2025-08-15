@@ -138,6 +138,7 @@ func (tt TokenType) String() string {
 
 // Token represents a token in the CSS lexer.
 type Token struct {
-	Type TokenType
-	Data string
+	Type  TokenType // Type of the token
+	Value string    // Value of the token (unescaped string data)
+	Raw   []rune    // Raw rune data of the token
 }

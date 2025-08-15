@@ -105,17 +105,17 @@ func TestLexer(t *testing.T) {
 						expectedToken := tokens[i]
 						token := lexer.Next()
 
-						// t.Logf("Expect token %d: Type=%s, Value=%q", i, expectedToken.Type, expectedToken.Value)
-						// t.Logf("Lexer returned: Type=%s, Value=%q", token.Type, token.Data)
+						// t.Logf("Expect token %d: Type=%s, Value=%q, Raw=%q", i, expectedToken.Type, expectedToken.Value, string(expectedToken.Raw))
+						// t.Logf("Lexer returned: Type=%s, Value=%q, Raw=%q", token.Type, token.Data, string(token.Raw))
 
 						if token.Type != convertTestTokenName(expectedToken.Type) {
-							t.Errorf("expected token type '%s' (value: %q), got '%s' (value: %q) at index %d",
-								expectedToken.Type, expectedToken.Value, token.Type, token.Data, i)
+							t.Errorf("expected token type '%s' (value: %q, raw: %q), got '%s' (value: %q, raw: %q) at index %d",
+								expectedToken.Type, expectedToken.Value, expectedToken.Raw, token.Type, token.Value, string(token.Raw), i)
 						}
 
-						if token.Data != expectedToken.Value {
+						if token.Value != expectedToken.Value {
 							t.Errorf("expected '%s' token value %q, got %q at index %d",
-								expectedToken.Type, expectedToken.Value, token.Data, i)
+								expectedToken.Type, expectedToken.Value, token.Value, i)
 						}
 					}
 

@@ -147,18 +147,6 @@ func (z *Input) Shift() {
 	z.start = z.pos
 }
 
-// Shift returns the current token and resets the start position to the current position.
-func (z *Input) ShiftRunes() []rune {
-	current := z.Current()
-	z.Shift()
-	return current
-}
-
-// ShiftString returns the current token as a string and resets the start position.
-func (z *Input) ShiftString() string {
-	return string(z.ShiftRunes())
-}
-
 // MoveWhilePredicate advances the position while the predicate function returns true for the current rune.
 func (z *Input) MoveWhilePredicate(pred func(rune) bool) {
 	for pred(z.Peek(0)) {

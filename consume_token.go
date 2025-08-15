@@ -8,8 +8,6 @@ import (
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-numeric-token
 func (l *Lexer) consumeNumericToken() (TokenType, string) {
-	defer l.r.Shift() // Shift the input after consuming the token
-
 	number := l.consumeNumber()
 
 	if l.nextCharsAreIdentifier() {
@@ -49,13 +47,11 @@ func (l *Lexer) consumeUnicodeRangeToken() (TokenType, string) {
 		}
 	}
 
-	return UnicodeRangeToken, l.r.ShiftString()
+	return UnicodeRangeToken, l.r.CurrentString()
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-ident-like-token
 func (l *Lexer) consumeIdentLikeToken() (TokenType, string) {
-	defer l.r.Shift() // Shift the input after consuming the token
-
 	name := l.consumeName()
 
 	if l.r.Peek(0) == '(' {
@@ -79,8 +75,6 @@ func (l *Lexer) consumeIdentLikeToken() (TokenType, string) {
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-string-token
 func (l *Lexer) consumeStringToken() (TokenType, string) {
-	defer l.r.Shift() // Shift the input after consuming the token
-
 	var result strings.Builder
 
 	until := l.r.Peek(0) // the opening quote, already checked valid by the caller
@@ -129,8 +123,6 @@ func (l *Lexer) consumeStringToken() (TokenType, string) {
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-url-token
 func (l *Lexer) consumeURLToken() (TokenType, string) {
-	defer l.r.Shift() // Shift the input after consuming the token
-
 	var result strings.Builder
 
 	for {

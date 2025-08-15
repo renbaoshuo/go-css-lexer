@@ -8,8 +8,9 @@ import (
 var tokenPool = sync.Pool{
 	New: func() interface{} {
 		return &Token{
-			Type: DefaultToken,
-			Data: "",
+			Type:  DefaultToken,
+			Value: "",
+			Raw:   nil,
 		}
 	},
 }
