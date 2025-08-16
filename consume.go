@@ -63,6 +63,7 @@ func (l *Lexer) consumeEscape() rune {
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-name
 func (l *Lexer) consumeName() string {
 	var result strings.Builder
+	result.Grow(32) // Preallocate some space for efficiency
 
 	for {
 		next := l.r.Peek(0)
