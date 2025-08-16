@@ -124,22 +124,22 @@ func (z *Input) CurrentString() string {
 	return string(z.Current())
 }
 
-// CurrentAfterOffset returns the current token after applying the
+// CurrentSuffix returns the current token after applying the
 // offset.
 //
 // If the offset is greater than the current position, it returns an
 // empty slice.
-func (z *Input) CurrentAfterOffset(offset int) []rune {
+func (z *Input) CurrentSuffix(offset int) []rune {
 	if z.start+offset >= z.pos {
 		return nullRune
 	}
 	return z.runes[z.start+offset : z.pos : z.pos]
 }
 
-// CurrentAfterOffsetString returns the current token as a string after
+// CurrentSuffixString returns the current token as a string after
 // applying the offset.
-func (z *Input) CurrentAfterOffsetString(offset int) string {
-	return string(z.CurrentAfterOffset(offset))
+func (z *Input) CurrentSuffixString(offset int) string {
+	return string(z.CurrentSuffix(offset))
 }
 
 // Shift resets the start position to the current position.

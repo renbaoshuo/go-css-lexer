@@ -117,25 +117,19 @@ func (l *Lexer) consumeNumber() string {
 		}
 	}
 
-	return l.r.CurrentAfterOffsetString(offset)
+	return l.r.CurrentSuffixString(offset)
 }
 
-func (l *Lexer) consumeSingleWhitespace() string {
-	offset := l.r.CurrentOffset()
-
+func (l *Lexer) consumeSingleWhitespace() {
 	next := l.r.Peek(0)
 	if next == '\r' && l.r.Peek(1) == '\n' {
 		l.r.Move(2) // consume CRLF
 	} else if cssutil.IsWhitespace(next) {
 		l.r.Move(1) // consume the whitespace character
 	}
-
-	return l.r.CurrentAfterOffsetString(offset)
 }
 
-func (l *Lexer) consumeWhitespace() string {
-	offset := l.r.CurrentOffset()
-
+func (l *Lexer) consumeWhitespace() {
 	for {
 		next := l.r.Peek(0)
 
@@ -147,8 +141,6 @@ func (l *Lexer) consumeWhitespace() string {
 			break
 		}
 	}
-
-	return l.r.CurrentAfterOffsetString(offset)
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-the-remnants-of-a-bad-url
