@@ -1,6 +1,8 @@
 package csslexer
 
 import (
+	"strings"
+
 	"go.baoshuo.dev/cssutil"
 )
 
@@ -59,47 +61,31 @@ func (l *Lexer) consumeEscape() rune {
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-name
-func (l *Lexer) consumeName() *[]rune {
-	name := runeSlicePool.Get().(*[]rune)
-	*name = (*name)[:0] // reset the slice to empty but keep the capacity
+func (l *Lexer) consumeName() string {
+	var result strings.Builder
 
 	for {
 		next := l.r.Peek(0)
 
 		if cssutil.IsIdentCodePoint(next) {
 			l.r.Move(1)
-			*name = append(*name, next)
-		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+			result.WriteRune(next)
+		} else if cssutil.TwoCodePointsStartsAValidEscape(next, l.r.Peek(1)) {
 			l.r.Move(1) // consume the backslash
 			escaped := l.consumeEscape()
-			*name = append(*name, escaped)
+			result.WriteRune(escaped)
 		} else {
 			break
 		}
 	}
 
-	return name
-}
-
-// consumeNameOnly same as consumeName, but does not return the name.
-// used for consuming names in contexts where the name is not needed
-func (l *Lexer) consumeNameOnly() {
-	for {
-		next := l.r.Peek(0)
-
-		if cssutil.IsIdentCodePoint(next) {
-			l.r.Move(1)
-		} else if twoCharsAreValidEscape(next, l.r.Peek(1)) {
-			l.r.Move(1) // consume the backslash
-			l.consumeEscape()
-		} else {
-			break
-		}
-	}
+	return result.String()
 }
 
 // https://www.w3.org/TR/2021/CRD-css-syntax-3-20211224/#consume-number
-func (l *Lexer) consumeNumber() {
+func (l *Lexer) consumeNumber() string {
+	offset := l.r.CurrentOffset()
+
 	next := l.r.Peek(0)
 
 	// If the next rune is '+' or '-', consume it as part of the number.
@@ -130,6 +116,8 @@ func (l *Lexer) consumeNumber() {
 			l.r.MoveWhilePredicate(cssutil.IsDigit)
 		}
 	}
+
+	return l.r.CurrentSuffixString(offset)
 }
 
 func (l *Lexer) consumeSingleWhitespace() {
@@ -148,7 +136,7 @@ func (l *Lexer) consumeWhitespace() {
 		if cssutil.IsWhitespace(next) {
 			l.consumeSingleWhitespace()
 		} else if next == EOF {
-			return
+			break
 		} else {
 			break
 		}
@@ -162,13 +150,13 @@ func (l *Lexer) consumeBadUrlRemnants() {
 
 		if next == ')' {
 			l.r.Move(1)
-			return
+			break
 		}
 		if next == EOF {
-			return
+			break
 		}
 
-		if twoCharsAreValidEscape(next, l.r.Peek(1)) {
+		if cssutil.TwoCodePointsStartsAValidEscape(next, l.r.Peek(1)) {
 			l.r.Move(1) // consume the backslash
 			l.consumeEscape()
 			continue

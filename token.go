@@ -47,12 +47,12 @@ const (
 	// Additional CSS token types
 
 	CommentToken
-	IncludeMatchToken
-	DashMatchToken
-	PrefixMatchToken
-	SuffixMatchToken
-	SubstringMatchToken
-	ColumnToken
+	IncludeMatchToken   // ~=
+	DashMatchToken      // |=
+	PrefixMatchToken    // ^= (starts with)
+	SuffixMatchToken    // $= (ends with)
+	SubstringMatchToken // *= (contains)
+	ColumnToken         // ||
 	UnicodeRangeToken
 )
 
@@ -134,29 +134,11 @@ func (tt TokenType) String() string {
 	}
 }
 
-// ===== TokenData =====
-
-// TokenData represents the raw data of a token.
-type TokenData []rune
-
-func (td TokenData) String() string {
-	return string(td)
-}
-
 // ===== Token =====
 
 // Token represents a token in the CSS lexer.
 type Token struct {
-	Type TokenType
-	Data TokenData
-}
-
-// DecodeData decodes the token data based on its type.
-func (t Token) DecodeData() string {
-	switch t.Type {
-	case IdentToken, FunctionToken, AtKeywordToken, HashToken, DimensionToken, StringToken, UrlToken:
-		return decodeEscapeSequences(t.Data)
-	default:
-		return string(t.Data)
-	}
+	Type  TokenType // Type of the token
+	Value string    // Value of the token (unescaped string data)
+	Raw   []rune    // Raw rune data of the token
 }

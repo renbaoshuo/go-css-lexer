@@ -18,8 +18,11 @@ const (
 )
 
 type testToken struct {
-	Type string `json:"type"`
-	Raw  string `json:"raw"`
+	Type       string `json:"type"`
+	Raw        string `json:"raw"`
+	StartIndex int    `json:"startIndex"`
+	EndIndex   int    `json:"endIndex"`
+	Value      string `json:"value"`
 }
 
 // CategoryStats holds test statistics for a category
@@ -102,17 +105,17 @@ func TestLexer(t *testing.T) {
 						expectedToken := tokens[i]
 						token := lexer.Next()
 
-						// t.Logf("Expect token %d: Type=%s, Raw=%q", i, expectedToken.Type, expectedToken.Raw)
-						// t.Logf("Lexer returned: Type=%s, Raw=%q", tokenType, string(tokenRaw))
+						// t.Logf("Expect token %d: Type=%s, Value=%q, Raw=%q", i, expectedToken.Type, expectedToken.Value, string(expectedToken.Raw))
+						// t.Logf("Lexer returned: Type=%s, Value=%q, Raw=%q", token.Type, token.Data, string(token.Raw))
 
 						if token.Type != convertTestTokenName(expectedToken.Type) {
-							t.Errorf("expected token type '%s' (raw: %q), got '%s' (raw: %q) at index %d",
-								expectedToken.Type, expectedToken.Raw, token.Type, string(token.Data), i)
+							t.Errorf("expected token type '%s' (value: %q, raw: %q), got '%s' (value: %q, raw: %q) at index %d",
+								expectedToken.Type, expectedToken.Value, expectedToken.Raw, token.Type, token.Value, string(token.Raw), i)
 						}
 
-						if string(token.Data) != expectedToken.Raw {
-							t.Errorf("expected '%s' token raw %q, got %q at index %d",
-								expectedToken.Type, expectedToken.Raw, string(token.Data), i)
+						if token.Value != expectedToken.Value {
+							t.Errorf("expected '%s' token value %q, got %q at index %d",
+								expectedToken.Type, expectedToken.Value, token.Value, i)
 						}
 					}
 

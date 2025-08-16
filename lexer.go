@@ -26,34 +26,38 @@ func (l *Lexer) Peek() Token {
 		// Get a token from the pool
 		p := tokenPool.Get().(*Token)
 		p.Type = tokenType
-		p.Data = data
+		p.Value = data
+		p.Raw = l.r.Current()
+		l.r.Shift() // Shift the input after consuming the token
 		l.p = p
 	}
-	return Token{Type: l.p.Type, Data: l.p.Data}
+	return Token{Type: l.p.Type, Value: l.p.Value}
 }
 
 // Next reads the next token from the input stream.
 func (l *Lexer) Next() Token {
 	if l.p != nil {
-		token := Token{Type: l.p.Type, Data: l.p.Data}
+		token := Token{Type: l.p.Type, Value: l.p.Value, Raw: l.p.Raw}
 		tokenPool.Put(l.p) // Return the token to the pool
 		l.p = nil
 		return token
 	}
 	tokenType, data := l.readNextToken()
-	return Token{Type: tokenType, Data: data}
+	rawRunes := l.r.Current()
+	l.r.Shift() // Shift the input after consuming the token
+	return Token{Type: tokenType, Value: data, Raw: rawRunes}
 }
 
 // readNextToken reads the next token from the input stream.
 // This is the internal method that actually parses tokens.
-func (l *Lexer) readNextToken() (TokenType, TokenData) {
+func (l *Lexer) readNextToken() (TokenType, string) {
 	switch l.r.Peek(0) {
 	case EOF:
-		return EOFToken, nil
+		return EOFToken, ""
 
 	case '\t', '\n', '\r', '\f', ' ':
 		l.consumeWhitespace()
-		return WhitespaceToken, l.r.Shift()
+		return WhitespaceToken, l.r.CurrentString()
 
 	case '\'', '"':
 		return l.consumeStringToken()
@@ -65,34 +69,34 @@ func (l *Lexer) readNextToken() (TokenType, TokenData) {
 
 	case '(':
 		l.r.Move(1)
-		return LeftParenthesisToken, l.r.Shift()
+		return LeftParenthesisToken, l.r.CurrentString()
 
 	case ')':
 		l.r.Move(1)
-		return RightParenthesisToken, l.r.Shift()
+		return RightParenthesisToken, l.r.CurrentString()
 
 	case '[':
 		l.r.Move(1)
-		return LeftBracketToken, l.r.Shift()
+		return LeftBracketToken, l.r.CurrentString()
 
 	case ']':
 		l.r.Move(1)
-		return RightBracketToken, l.r.Shift()
+		return RightBracketToken, l.r.CurrentString()
 
 	case '{':
 		l.r.Move(1)
-		return LeftBraceToken, l.r.Shift()
+		return LeftBraceToken, l.r.CurrentString()
 
 	case '}':
 		l.r.Move(1)
-		return RightBraceToken, l.r.Shift()
+		return RightBraceToken, l.r.CurrentString()
 
 	case '+', '.':
 		if l.nextCharsAreNumber() {
 			return l.consumeNumericToken()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '-':
 		if l.nextCharsAreNumber() {
@@ -100,109 +104,109 @@ func (l *Lexer) readNextToken() (TokenType, TokenData) {
 		}
 		if l.r.Peek(1) == '-' && l.r.Peek(2) == '>' {
 			l.r.Move(3) // consume "-->"
-			return CDCToken, l.r.Shift()
+			return CDCToken, l.r.CurrentString()
 		}
 		if l.nextCharsAreIdentifier() {
 			return l.consumeIdentLikeToken()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '*':
 		if l.r.Peek(1) == '=' {
 			l.r.Move(2) // consume "*="
-			return SubstringMatchToken, l.r.Shift()
+			return SubstringMatchToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '<':
 		if l.r.Peek(1) == '!' && l.r.Peek(2) == '-' && l.r.Peek(3) == '-' {
 			l.r.Move(4) // consume "<!--"
-			return CDOToken, l.r.Shift()
+			return CDOToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case ',':
 		l.r.Move(1)
-		return CommaToken, l.r.Shift()
+		return CommaToken, l.r.CurrentString()
 
 	case '/':
 		if l.r.Peek(1) == '*' {
 			l.consumeUntilCommentEnd()
-			return CommentToken, l.r.Shift()
+			return CommentToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '\\':
-		if twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
+		if cssutil.TwoCodePointsStartsAValidEscape(l.r.Peek(0), l.r.Peek(1)) {
 			return l.consumeIdentLikeToken()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case ':':
 		l.r.Move(1)
-		return ColonToken, l.r.Shift()
+		return ColonToken, l.r.CurrentString()
 
 	case ';':
 		l.r.Move(1)
-		return SemicolonToken, l.r.Shift()
+		return SemicolonToken, l.r.CurrentString()
 
 	case '#':
 		l.r.Move(1)
-		if cssutil.IsIdentCodePoint(l.r.Peek(0)) || twoCharsAreValidEscape(l.r.Peek(0), l.r.Peek(1)) {
-			l.consumeNameOnly()
-			return HashToken, l.r.Shift()
+		if cssutil.IsIdentCodePoint(l.r.Peek(0)) || cssutil.TwoCodePointsStartsAValidEscape(l.r.Peek(0), l.r.Peek(1)) {
+			name := l.consumeName()
+			return HashToken, name
 		}
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '^':
 		if l.r.Peek(1) == '=' {
 			l.r.Move(2) // consume "^="
-			return PrefixMatchToken, l.r.Shift()
+			return PrefixMatchToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '$':
 		if l.r.Peek(1) == '=' {
 			l.r.Move(2) // consume "$="
-			return SuffixMatchToken, l.r.Shift()
+			return SuffixMatchToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '|':
 		if l.r.Peek(1) == '=' {
 			l.r.Move(2) // consume "|="
-			return DashMatchToken, l.r.Shift()
+			return DashMatchToken, l.r.CurrentString()
 		}
 		// https://www.w3.org/TR/2022/WD-selectors-4-20221111/#the-column-combinator
 		if l.r.Peek(1) == '|' {
 			l.r.Move(2) // consume "||"
-			return ColumnToken, l.r.Shift()
+			return ColumnToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '~':
 		if l.r.Peek(1) == '=' {
 			l.r.Move(2) // consume "~="
-			return IncludeMatchToken, l.r.Shift()
+			return IncludeMatchToken, l.r.CurrentString()
 		}
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case '@':
 		l.r.Move(1)
 		if l.nextCharsAreIdentifier() {
-			l.consumeNameOnly()
-			return AtKeywordToken, l.r.Shift()
+			name := l.consumeName()
+			return AtKeywordToken, name
 		}
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	case 'u', 'U':
 		if l.r.Peek(1) == '+' &&
@@ -215,7 +219,7 @@ func (l *Lexer) readNextToken() (TokenType, TokenData) {
 	case 1, 2, 3, 4, 5, 6, 7, 8, 11, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
 		25, 26, 27, 28, 29, 30, 31, '!', '%', '&', '=', '>', '?', '`', 127:
 		l.r.Move(1)
-		return DelimiterToken, l.r.Shift()
+		return DelimiterToken, l.r.CurrentString()
 
 	default:
 		return l.consumeIdentLikeToken()
