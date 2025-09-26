@@ -2,6 +2,8 @@ package csslexer
 
 import (
 	"fmt"
+
+	"go.baoshuo.dev/cssutil"
 )
 
 // ===== TokenType =====
@@ -141,4 +143,110 @@ type Token struct {
 	Type  TokenType // Type of the token
 	Value string    // Value of the token (unescaped string data)
 	Raw   []rune    // Raw rune data of the token
+}
+
+// String returns the serialized representation of the token.
+// It uses cssutil serialize functions to properly format the token value
+// according to CSS specifications.
+func (t Token) String() string {
+	switch t.Type {
+	case StringToken, BadStringToken:
+		return cssutil.SerializeString(t.Value)
+
+	case AtKeywordToken:
+		return "@" + cssutil.SerializeIdentifier(t.Value)
+
+	case IdentToken:
+		return cssutil.SerializeIdentifier(t.Value)
+
+	case FunctionToken:
+		return cssutil.SerializeIdentifier(t.Value) + "("
+
+	case HashToken:
+		return "#" + cssutil.SerializeIdentifier(t.Value)
+
+	case UrlToken:
+		return cssutil.SerializeURL(t.Value)
+
+	case BadUrlToken:
+		return "url(" + t.Value + ")"
+
+	case PercentageToken:
+		return t.Value + "%"
+
+	case NumberToken:
+		return t.Value
+
+	case DimensionToken:
+		return t.Value
+
+	case DelimiterToken:
+		return t.Value
+
+	case WhitespaceToken:
+		return t.Value
+
+	case CommentToken:
+		return "/*" + t.Value + "*/"
+
+	case CDOToken:
+		return "<!--"
+
+	case CDCToken:
+		return "-->"
+
+	case ColonToken:
+		return ":"
+
+	case SemicolonToken:
+		return ";"
+
+	case CommaToken:
+		return ","
+
+	case LeftParenthesisToken:
+		return "("
+
+	case RightParenthesisToken:
+		return ")"
+
+	case LeftBracketToken:
+		return "["
+
+	case RightBracketToken:
+		return "]"
+
+	case LeftBraceToken:
+		return "{"
+
+	case RightBraceToken:
+		return "}"
+
+	case IncludeMatchToken:
+		return "~="
+
+	case DashMatchToken:
+		return "|="
+
+	case PrefixMatchToken:
+		return "^="
+
+	case SuffixMatchToken:
+		return "$="
+
+	case SubstringMatchToken:
+		return "*="
+
+	case ColumnToken:
+		return "||"
+
+	case UnicodeRangeToken:
+		return t.Value
+
+	case EOFToken:
+		return ""
+
+	default:
+		return string(t.Raw)
+	}
 }
